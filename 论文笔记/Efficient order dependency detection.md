@@ -144,10 +144,33 @@ $\therefore$可当满足上述条件，可以将$Y$从$C_l(X)$中删除
   - 当$X \to _< Y$有效时，将$X\to_<Y$加入$valid$集合
     - 当X时$unique$时，从$C_l(X)$中删除Y。<u>因为可推$XV\to_<YW$(仅V，W可为$\emptyset$)必定有效，根据从$C_l(X)$中的删除规则，将Y删除</u>
     - 当由于$swap$导致$X \nrightarrow _<Y$时，从$C_l(X)$中删除Y。<u>因为可推$XV \nrightarrow YW$(仅V,W可为$\emptyset$)，从而删除Y
-
 - 遍历完后，再对整层的结点进行***merge-pruning***(因为merge-pruing过程中需要用到整层的$CS_l$，比如在进行$Y \in C_l(X)$遍历的时候需要用到$C_l（X^{'})$中的元素进行判断)。
 
-- 
+---
 
-  
+### ***prune()函数***
+
+> 从晶格网络中删除结点的规则：只有确认该结点不会再生成包含还不知道有效性的OD候选集的结点
+>
+> 结点n的$｜n｜-1$个候选集全为空，表示以n作为前缀的更大的结点不会产生了，我们则将其从晶格网络中删掉
+
+#### 代码：
+
+<img src="/Users/chenjixuan/Library/Application Support/typora-user-images/image-20200920102235428.png" alt="image-20200920102235428" style="zoom:50%;" />
+
+---
+
+### ***generateNextLevel()函数***
+
+> 1. 将两个大小为$l$的结点分成2部分$(X,Y)$,其中每个结点的$|X|=l-1$,且相同，$Y$则不同
+> 2. 再将这2个结点结合在一起生成大小为$l+1$的结点
+> 3. 为下一层产生空的候选集
+
+#### ***prefixBlocks()函数***
+
+> 将大小为$l$的结点分成有着相同的大小为$l-1$的前缀的结点列表$prefixBlock$，每个$list$中所有节点的$l-1$前缀相同
+
+#### 代码：
+
+![image-20200920110100608](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20200920110100608.png)
 
