@@ -8,7 +8,122 @@ $CS_l$：$l$层的所有候选集的集合
 
 $X^{'}$：$X$的最长前缀，例：$X=ABCD$，则$X^{'}=ABC$
 
+$\tau_X $：属性列X的排序分区，将元组根据属性列X的值分割成一些等价类，使得这些等价类的X值相等
+
+$\tau_X^k$：表示X中值第k小的元组
+
+$|\tau_X|$：表示$\tau_X$中等价类数量
+
+> 因为使用$\tau_X$这种方法，所以没有必要去存储整个元组的数据值。只需要存储元组的标识符(行索引)
+
+<img src="/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010153403581.png" alt="image-20201010153403581" style="zoom:50%;" />
+
 ---
+
+## 定义
+
+![image-20201010145746281](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010145746281.png)
+
+***（不太清楚）***
+
+![image-20201010150129327](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010150129327.png)
+
+***
+
+## 引理
+
+![image-20201010132849677](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010132849677.png)
+
+![image-20201010133439082](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010133439082.png)
+
+![image-20201010133513961](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010133513961.png)
+
+![image-20201010135453238](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010135453238.png)
+
+![image-20201010135505020](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010135505020.png)
+
+![image-20201010140104156](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010140104156.png)
+
+![image-20201010155640612](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010155640612.png)
+
+> 排序分区和merge之的关系，若(X,Y)中存在merge，则元组s,t中存在后等前不等的情况，则在$\tau_X$中s,t位于不同的等价类中，但是 $\tau_Y$中s,t位于同一个等价类中。
+>
+> ***引理7的表述不太清楚***（$\tau_X \times\tau_Y$是什么意思，injective是什么意思），e表示一个等价类
+
+***
+
+## 定理
+
+<img src="/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010134320307.png" alt="image-20201010134320307" style="zoom:50%;" />
+
+​	定理1表明，发现所有基于$<$操作符的n元OD，便可以发现所有基于$\leq$操作符的n元OD。
+
+***
+
+## 晶格网络
+
+**用晶格网络来表示搜索空间**
+
+![image-20201010141036771](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010141036771.png)
+
+第K层的节点包含k个属性并且代表了k-1个候选ODs。
+
+***
+
+## checkForSwap算法
+
+算法检查$\tau_X，\tau_Y$中是否至少存在一个swap
+
+$e_X$表示$\tau_X$中的第i小的等价类（簇）
+
+![image-20201010162501046](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010162501046.png)
+
+### 代码解析：
+
+​	line3: $i< |\tau_X|$...
+
+​	考虑两种情况：
+
+1. $e_X$标识符数量小于$e_Y$
+   - 若没有$e_X \subseteq e_Y$，则返回swap
+   - 否则$merge = true$，由于$|e_X|<|e_Y|$，$e_Y$中还会有一个元组没进行比较，所以取下一个$e_X$，然后把$e_Y$中没处理过的元组保留，进行下一次比较。
+2. $|e_X|$等于或大于$|e_Y|$
+   - 若没有$e_Y \subseteq e_X$，则返回swap
+   - 否则取下一个$e_Y$，删除当前$e_X$中处理过的元组
+     - 若$|e_X|=0$，则取下一个$e_X$
+     - 否则继续处理当前$e_X$
+
+若$merge=true$成立，则返回merge
+
+否则返回valid
+
+***
+
+## **Product of sorted partitions**(分区的乘积)
+
+### 简述思路
+
+![image-20201010172800734](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010172800734.png)
+
+![image-20201010173826293](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010173826293.png)
+
+> 1. 等价类大小为1时
+>    - 直接加入到$\tau AB$
+> 2. 等价类大小大于1时
+>    - 根据在$\tau_B$中出现的位置分成新的等价类再加入$\tau AB$中
+
+> 使用类似哈希连接的过程实现两个排列分区的乘积
+>
+> 1. 创建哈希表$H_P$，将元组标识符t映射到t所在的$\tau_A$中的位置（只保存大小大于1的等价类）
+> 2. 遍历$\tau_B$，建立哈希表$H_S$，将$\tau_A$中大小大于1的等价类的位置映射到等价类列表中
+
+![image-20201010184616744](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010184616744.png)
+
+### 代码解析：
+
+Line
+
+
 
 ## ***ORDER算法***
 
