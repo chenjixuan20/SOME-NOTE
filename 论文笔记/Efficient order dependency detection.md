@@ -1,4 +1,4 @@
-# **Efficient order dependency detection**总结
+# Efficient order dependency detection**总结
 
 ## 符号含义
 
@@ -108,24 +108,71 @@ $e_X$表示$\tau_X$中的第i小的等价类（簇）
 ![image-20201010173826293](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010173826293.png)
 
 > 1. 等价类大小为1时
->    - 直接加入到$\tau AB$
+>    - 直接加入到$\tau_ {AB}$
 > 2. 等价类大小大于1时
->    - 根据在$\tau_B$中出现的位置分成新的等价类再加入$\tau AB$中
+>    - 根据在$\tau_B$中出现的位置分成新的等价类再加入$\tau_ {AB}$中
 
 > 使用类似哈希连接的过程实现两个排列分区的乘积
 >
 > 1. 创建哈希表$H_P$，将元组标识符t映射到t所在的$\tau_A$中的位置（只保存大小大于1的等价类）
-> 2. 遍历$\tau_B$，建立哈希表$H_S$，将$\tau_A$中大小大于1的等价类的位置映射到等价类列表中
+> 2. 遍历$\tau_B$，建立哈希表$H_S$，将$\tau_A$中大小大于1的等价类的位置映射到$\tau_{AB}$的等价类列表中
 
 ![image-20201010184616744](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010184616744.png)
 
+$tide_{eB}$：等价类$e_B$中的元组标识符
+
+Visited：记录$\tau _B$中的等价类$e_B$中的元组$tid_{eB}$(在$\tau_A$中所属$e_A$大小大于1)，在$\tau_A$中的位置i（$H_p(tid_{eB})$）的集合。
+
+$H_p$：记录大小大于1的等价类中的元组标识符，$H_p(3)=2$表示元组标识符3在$\tau_A$的第二个等价类中
+
+$H_S$：根据逐一遍历$\tau_B$在中的等价类中的元组标识符的结果，记录由$\tau_A$中大小大于1的等价类经过$\tau_B$处理得到的$\tau _{AB}$中的等价类的所有标识符，$H_S(2)=\{ \{ 2,4\} ,\{3\}\}$表示在$\tau_A$中的等价类$\{2,3,4\}$，由于$\tau_B$在$\tau_{AB}$中分为2个等价类$\{2,4\},\{3\}$。
+
+<img src="/Users/chenjixuan/Downloads/IMG_0004.PNG" alt="IMG_0004" style="zoom:50%;" />
+
 ### 代码解析：
 
-Line
+​	Line5：如果$H_p$的$tid_{eB}$位置为空，表示该元组的等价类大小为1，则继续遍历。
 
+​	Line7：若不为空，表示等价类大小大于1，先记录下该元组在$\tau _A$中的位置pos。
 
+​	Line8：将pos加入visited。
 
-## ***ORDER算法***
+​	Line9：将该元组的标识符加入$H_S$中pos位置的最后一个等价类中。
+
+​	Line10~11：遍历完$\tau _B$中一个等价类中所有元组后，在$H_S$中pos出现过的位置加入一个空集合。来确保$\tau _A$中一个等价类中的元组标识符（$H_p$中不为空且值相同的位置）能继续添加到$H_S$中。
+
+​	Line12~17：在遍历完$\tau_B$后，$\tau_{AB}$中的总体顺序应该与$\tau_A$相同（将表按A排序和将表按AB排序大致相同），再遍历$e_A$，对$\tau_A$中对等价类$e_A$处理得到$e_{AB}$。
+
+- 若$|\tau_A^i|=1,i.e.|e_A|=1$，则直接将$e_A$加入$\tau_{AB}$
+- 否则将$H_S(i)$中的非空等价类$e_{AB}$依次加入$\tau_{AB}$
+
+***
+
+## 剪枝原则
+
+![image-20201012111855818](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201012111855818.png)
+
+> (A,CD)中存在merge，则(AB,CD)中依然存在merge
+>
+> (A,CD)中存在swap，则(AB,CD)中依然存在swap
+
+![image-20201012112532873](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201012112532873.png)
+
+> (A,BC)中没有merge或swap，则(A,BCD)中肯定也没有merge或swap
+
+![image-20201012111928803](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201012111928803.png)
+
+> (A,C)中存在swap，则(AB,CD)中肯定也存在swap，因为在A，C右侧加入属性并没有改变元组在A,C中原先的顺序
+
+![image-20201012112229232](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201012112229232.png)
+
+> 由Lemma6得
+
+由于自下而上的生成候选集，晶格网络中$l$层的节点均是$l+1$层节点的前缀，在生成候选集的时候使用剪枝规则可以有效降低时间复杂度
+
+***
+
+## ORDER算法
 
 #### 代码
 
@@ -139,11 +186,11 @@ Line
 
 > 由下一层的候选集集合$CS_{l-1}$生成$l$层候选集集合$CS_l$
 
-#### 当$|X| = l-1$时，$C_l(X)$由$C_{l-1}(X^{'})$生成
+- 当$|X| = l-1$时，$C_l(X)$由$C_{l-1}(X^{'})$生成
 
 > 当$B\in C_{l-1}(X^{'})$且$B$与$X$不相交，则$B \in C_l(X)$
 
-#### 当$1 \leq |X| \leq l-1$时，$C_l(X)$由逐渐加入$Y \in C_{l-1}(X)$扩展而得到的$U$得到
+- 当$1 \leq |X| \leq l-1$时，$C_l(X)$由逐渐加入$Y \in C_{l-1}(X)$扩展而得到的$U$得到
 
 > $|U|=|Y|+1$
 >
@@ -166,11 +213,12 @@ Line
                   2. $U$由于***swap***被剪枝
                   3. $U$由于***uniqune***被剪枝
                   4. $U$由于***merge-pruning***被剪枝
-                  5. $X \rightarrow_< T,T \in prefix(U)$,<u>***为什么？我感觉应该将$X$改为$X^{'}$***</u>
+                  5. $X \rightarrow_< T,T \in prefix(U)$（<u>**为什么？**</u>）
               -  1～4种情况不用将$U$加入候选集
-              -  第5种需要<u>***（这不就与上面分析的推导矛盾了么？）***</u>
-      	-  最小的$U$才加入候选集$C_l(X)$
-
+              -  第5种需要。当第5种情况时，必定存在$X^{'} \rightarrow Q，Q \in prefix(U)$，（<u>**为什么?**</u>）
+              -  Line12：表示若不是第5种情况，则进行下一次循环，不把U加入候选集
+    	-  最小的$U$才加入候选集$C_l(X)$
+  
 - 当$|X| = l-1$时
   - $C_l(X)$由$C_{l-1}(X^{'})$生成，当$B\in C_{l-1}(X^{'})$且$B$与$X$不相交，则$B \in C_l(X)$
 - 最后将生成的$C_l(X)$加入到$CS_l$中​，知道该层候选集集合填充完毕
@@ -191,6 +239,10 @@ Line
 
 > obtainCandidates()函数将结点node,分为候选OD的左侧LHS和右侧RHS
 
+#### 从$C_l(X)$删除Y的规则
+
+<img src="/Users/chenjixuan/Downloads/IMG_0005.PNG" alt="IMG_0005" style="zoom:50%;" />
+
 #### ***merge-pruning***
 
 > 仅由于$merge$导致$X\nrightarrow_<Y$时，$XV\to _<YW$是否有效无法得知，可能有效也可能无效。只能推理出$XV\nrightarrow _<Y$，
@@ -203,7 +255,7 @@ Line
 
 > 然而，假如除了知道$A \nrightarrow_<B$是由于***merge***造成的，我们还知道任何$A\to_<BY,(Y\neq \empty)$ 均不需要检查，于是，我们不需要检查形如$AX \nrightarrow_<BY$格式的OD
 
-<u> 那么$A\to_<BY,(Y\neq \empty)$ 均不需要检查有两种形式</u>
+<u> 那么$A\to_<BY,(Y\neq \empty)$ 均不需要检查有两种情况</u>
 
 1. $A\to_<BY,(Y\neq \empty)$ 
 
@@ -231,15 +283,15 @@ Line
 
 证：
 
-$\because \nexists V \in C_{l}(x^{`}) ,且 V = YE$
+$X^{'}\nrightarrow _<Y $已知，$X^{'}\rightarrow _<YE(V)$的有效性已知（$\because \nexists V \in C_{l}(X^{'}) ,且 V = YE$）
 
-$\because|V|+|X^{'}|=l,|Y|+|X|=l$
+> $\because|V|+|X^{'}|=l,|Y|+|X|=l$
+>
+> $\therefore |E|=1$
 
-$\therefore |E|=1$
+$\therefore X^{'}M \to _< VN$有效性已知（由于$ \nexists V \in C_{l}(X^{'})$）
 
-$\therefore X^{`}M \to _< VN$有效性已知
-
-令$X^{`}M=XA,VN=YEN=YZ$时，上式可以表示为$XA\to _<YZ$,其有效性已知
+令$X^{'}M=XA,VN=YEN=YZ(V=YE,Z=EN)$时，上式可以表示为$XA\to _<YZ$,其有效性已知
 
 $\therefore$可当满足上述条件，可以将$Y$从$C_l(X)$中删除
 
@@ -258,7 +310,7 @@ $\therefore$可当满足上述条件，可以将$Y$从$C_l(X)$中删除
   - 当$Y \notin C_l(X)$时，不进行检查
   - 当$X \to _< Y$有效时，将$X\to_<Y$加入$valid$集合
     - 当X时$unique$时，从$C_l(X)$中删除Y。<u>因为可推$XV\to_<YW$(仅V，W可为$\emptyset$)必定有效，根据从$C_l(X)$中的删除规则，将Y删除</u>
-    - 当由于$swap$导致$X \nrightarrow _<Y$时，从$C_l(X)$中删除Y。<u>因为可推$XV \nrightarrow YW$(仅V,W可为$\emptyset$)，从而删除Y
+    - 当由于$swap$导致$X \nrightarrow _<Y$时，从$C_l(X)$中删除Y。<u>因为可推$XV \nrightarrow YW$(仅V,W可为$\emptyset$)，从而删除Y</u>
 - 遍历完后，再对整层的结点进行***merge-pruning***(因为merge-pruing过程中需要用到整层的$CS_l$，比如在进行$Y \in C_l(X)$遍历的时候需要用到$C_l（X^{'})$中的元素进行判断)。
 
 ---
