@@ -24,9 +24,15 @@ $|\tau_X|$：表示$\tau_X$中等价类数量
 
 ![image-20201010145746281](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010145746281.png)
 
-***（不太清楚）***
+若$X 􏳫\to _\leq Y$，
+
+- 则$MXNYW \leftrightarrow MXNW$ (MXNYW不是最小list) ，解释了图中"2."的情况
+
+- 则$MYXW \leftrightarrow MXW$(MYXW不是最小list)，解释了图中"1."的情况
 
 ![image-20201010150129327](/Users/chenjixuan/Library/Application Support/typora-user-images/image-20201010150129327.png)
+
+s.t. ：subject to（使得）
 
 ***
 
